@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "feature_id_pattern": "F[0-9]{3}",
+  "feature_code_pattern": "[A-Z][A-Z0-9_]+",
+  "required_fields": [
+    "feature_id",
+    "feature_code",
+    "feature_name",
+    "owner",
+    "implementation_paths",
+    "test_paths",
+    "status"
+  ],
+  "features": [
+    {
+      "feature_id": "F002",
+      "feature_code": "DAILY_LOG_SUMMARY",
+      "feature_name": "项目日志日报汇总",
+      "owner": "项目监理",
+      "implementation_paths": [
+        ".codex/skills/pr-ps-09-daily-log-summary"
+      ],
+      "test_paths": [
+        "../achieve/00-项目管理/quality/20260913-项目日志日报汇总Skill-质量门禁.md"
+      ],
+      "status": "active"
+    }
+  ]
+}

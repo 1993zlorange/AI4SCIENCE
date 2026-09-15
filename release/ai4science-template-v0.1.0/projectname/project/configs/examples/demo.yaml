@@ -1,0 +1,4 @@
+# Interface example only. Replace it after the configuration schema is approved.
+algorithm: classification.linear
+seed: 42
+

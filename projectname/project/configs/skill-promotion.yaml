@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "required_evidence": [
+    "project_skill",
+    "proposal_ref",
+    "pilot_ref",
+    "independent_review_ref",
+    "security_scan_ref",
+    "human_approval_ref",
+    "global_install_ref",
+    "rollback_ref"
+  ],
+  "promotions": [
+    {
+      "skill_name": "pr-ps-09-daily-log-summary",
+      "version": "1.0.0",
+      "package_sha256": "25D335BD0FCF0E9794FFBC015BF7A32B4D271240323D6023939A5D5583018F59",
+      "status": "installed",
+      "installed_at": "2026-09-13 11:20 +08:00",
+      "global_package_sha256": "25D335BD0FCF0E9794FFBC015BF7A32B4D271240323D6023939A5D5583018F59",
+      "project_skill": ".codex/skills/pr-ps-09-daily-log-summary",
+      "proposal_ref": "../achieve/00-项目管理/skills/20260913-项目日志日报汇总-技能说明.md",
+      "pilot_ref": "../achieve/00-项目管理/dailylogs/20260913-项目治理与日志规范-日报.md",
+      "independent_review_ref": "../achieve/00-项目管理/quality/20260913-项目日志日报汇总Skill-质量门禁.md#独立复核",
+      "security_scan_ref": "../achieve/00-项目管理/quality/20260913-项目日志日报汇总Skill-质量门禁.md#安全扫描",
+      "human_approval_ref": "../achieve/00-项目管理/requirements/20260913-项目日志日报汇总Skill-需求记录.md",
+      "global_install_ref": "../achieve/00-项目管理/changes/20260913-项目日志日报汇总Skill-变更记录.md#全局安装与回滚",
+      "rollback_ref": "../achieve/00-项目管理/changes/20260913-项目日志日报汇总Skill-变更记录.md#全局安装与回滚"
+    }
+  ]
+}

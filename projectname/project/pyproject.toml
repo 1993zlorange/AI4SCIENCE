@@ -1,0 +1,100 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ai-project-template"
+version = "0.1.0"
+description = "A blank, reusable Python AI project scaffold."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+# Enable only after src/ai_project/cli/main.py implements main().
+# [project.scripts]
+# ai-project = "ai_project.cli.main:main"
+
+[dependency-groups]
+dev = [
+  "mypy>=1.18",
+  "pytest>=8.4",
+  "pytest-cov>=7.0",
+  "ruff>=0.13",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ai_project"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+exclude = [
+  ".git",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".venv",
+  "build",
+  "dist",
+  "var",
+]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "B",
+  "C4",
+  "SIM",
+  "PIE",
+  "RUF",
+  "DTZ",
+  "T20",
+  "S",
+  "ASYNC",
+  "PERF",
+]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "S105", "S106"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+docstring-code-format = true
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src", "tests/unit", "tests/contract"]
+warn_unreachable = true
+show_error_codes = true
+pretty = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--strict-config", "--strict-markers", "-ra"]
+markers = [
+  "unit: pure unit tests",
+  "contract: shared contract tests",
+  "integration: tests with local infrastructure",
+  "e2e: installed CLI or HTTP end-to-end tests",
+  "regression: tests for previously confirmed defects",
+  "slow: tests excluded from the default fast loop",
+  "gpu: tests that require an explicitly selected accelerator",
+  "network: tests that require explicitly authorized network access",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["ai_project"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 80

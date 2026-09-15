@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.python-version
+
+# Environments and package outputs
+.venv/
+build/
+dist/
+*.egg-info/
+
+# Tool caches and coverage
+.coverage
+htmlcov/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Data, models, logs, and run outputs
+data/
+models/
+*.log
+*.ckpt
+*.pt
+*.pth
+*.onnx
+var/*
+!var/.gitkeep
+!var/runs/
+var/runs/*
+!var/runs/.gitkeep
+

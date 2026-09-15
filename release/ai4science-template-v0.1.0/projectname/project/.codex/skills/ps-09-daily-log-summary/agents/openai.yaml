@@ -1,0 +1,7 @@
+interface:
+  display_name: "项目日志日报汇总"
+  short_description: "按文件名日期汇总项目日志并生成可追溯中文日报"
+  default_prompt: "使用 $pr-ps-09-daily-log-summary 汇总当前项目今天的管理日志并生成日报。"
+
+policy:
+  allow_implicit_invocation: true
