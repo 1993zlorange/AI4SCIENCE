@@ -1,0 +1,4 @@
+# Local tool caches (not project artifacts)
+.mimosa/
+.playwright-cli/
+

@@ -110,7 +110,7 @@ AI4SCIENCE/
 工程实现前，在 `projectname/project/configs/features.yaml` 登记功能编号、代码、中文名称、责任人、实现路径、测试路径和状态。工程变更完成后运行：
 
 ```bash
-python projectname/project/scripts/f001_governance_validate.py --project-root . --check
+python projectname/project/scripts/f001_governance_validate.py --project-root projectname/project --check
 ```
 
 F001 只检查治理、文件归属和功能登记，不替代数据质控、实验复现、统计审计、独立评审或导师决定。真实实验的代码版本、配置、输入摘要、环境、指标、日志与产物应按唯一 `run_id` 关联；运行命令、数据许可和资源要求由具体项目的工程 README 与工作契约提供。
