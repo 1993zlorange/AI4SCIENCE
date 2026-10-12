@@ -13,6 +13,31 @@
   ],
   "features": [
     {
+      "feature_id": "F003",
+      "feature_code": "AXIOM_REPORTER",
+      "feature_name": "项目对话沟通规则",
+      "owner": "项目维护者",
+      "implementation_paths": [
+        "../../AGENTS.md",
+        "../../.codex/skills/Axiom-reporter/SKILL.md",
+        "../../.codex/skills/Axiom-reporter/LICENSE"
+      ],
+      "test_paths": [
+        "../achieve/00-项目管理/quality/20261012-Axiom-reporter安装-质量门禁.md"
+      ],
+      "status": "active",
+      "source": {
+        "repository": "https://github.com/1993zlorange/Axiom-reporter",
+        "commit": "ab624f98da6cb9bf162a4dbf66e175976cd3acce"
+      },
+      "placement_exception": "用户指定遵循来源安装流程，安装到当前项目根目录；保持上游技能名称，既有 project_skills_root 映射不变。",
+      "evidence": [
+        "../achieve/00-项目管理/requirements/20261012-Axiom-reporter安装-需求记录.md",
+        "../achieve/00-项目管理/supervision/20261012-Axiom-reporter安装-监督记录.md",
+        "../achieve/00-项目管理/quality/20261012-Axiom-reporter安装-质量门禁.md"
+      ]
+    },
+    {
       "feature_id": "F002",
       "feature_code": "DAILY_LOG_SUMMARY",
       "feature_name": "项目日志日报汇总",
