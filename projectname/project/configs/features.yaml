@@ -13,6 +13,31 @@
   ],
   "features": [
     {
+      "feature_id": "F001",
+      "feature_code": "RESEARCH_RECORD_GOVERNANCE",
+      "feature_name": "科研记录归属与日文件校验",
+      "owner": "项目维护者",
+      "implementation_paths": [
+        "../../AGENTS.md",
+        "AGENTS.md",
+        "configs/features.yaml",
+        "scripts/f001_governance_validate.py",
+        "../achieve/00-项目管理/templates/20261029-同日科研记录-模板.md",
+        "../../README.md",
+        "README.md",
+        "docs/api.md",
+        "../achieve/00-项目管理/README.md"
+      ],
+      "test_paths": [
+        "tests/unit/test_f001_governance_validate.py"
+      ],
+      "status": "active",
+      "validate_paths": true,
+      "evidence": [
+        "../achieve/00-项目管理/changes/20261029-项目变更-变更记录.md"
+      ]
+    },
+    {
       "feature_id": "F003",
       "feature_code": "AXIOM_REPORTER",
       "feature_name": "项目对话沟通规则",
@@ -50,5 +75,188 @@
       ],
       "status": "active"
     }
-  ]
+  ],
+  "record_policy": {
+    "enabled": true,
+    "effective_date": "2026-10-29",
+    "timezone": "Asia/Shanghai",
+    "project_id": "projectname",
+    "profile": "research",
+    "types": {
+      "requirement": {
+        "aliases": [
+          "需求记录"
+        ],
+        "directory": "projectname/achieve/00-项目管理/requirements",
+        "filename_body": "用户要求",
+        "label": "需求记录"
+      },
+      "supervision": {
+        "aliases": [
+          "监督记录",
+          "监督简报"
+        ],
+        "directory": "projectname/achieve/00-项目管理/supervision",
+        "filename_body": "项目监督",
+        "label": "监督记录"
+      },
+      "log": {
+        "aliases": [
+          "日志",
+          "项目日志",
+          "科研日志"
+        ],
+        "directory": "projectname/achieve/00-项目管理/logs",
+        "filename_body": "科研进度",
+        "label": "日志"
+      },
+      "reflection": {
+        "aliases": [
+          "反思",
+          "问题反思"
+        ],
+        "directory": "projectname/achieve/00-项目管理/reflections",
+        "filename_body": "问题改进",
+        "label": "反思"
+      },
+      "change": {
+        "aliases": [
+          "变更记录"
+        ],
+        "directory": "projectname/achieve/00-项目管理/changes",
+        "filename_body": "项目变更",
+        "label": "变更记录"
+      },
+      "quality": {
+        "aliases": [
+          "质量记录",
+          "质量检查",
+          "质量门禁"
+        ],
+        "directory": "projectname/achieve/00-项目管理/quality",
+        "filename_body": "质量检查",
+        "label": "质量记录"
+      },
+      "cost": {
+        "aliases": [
+          "成本记录",
+          "成本时间统计",
+          "成本统计"
+        ],
+        "directory": "projectname/achieve/00-项目管理/costs",
+        "filename_body": "资源消耗",
+        "label": "成本记录"
+      },
+      "achievement": {
+        "aliases": [
+          "成果卡"
+        ],
+        "directory": "projectname/achieve/08-项目推进与下一步计划",
+        "filename_body": "科研结果",
+        "label": "成果卡"
+      },
+      "work-contract": {
+        "aliases": [
+          "工作契约"
+        ],
+        "directory": "projectname/achieve/08-项目推进与下一步计划",
+        "filename_body": "科研工作",
+        "label": "工作契约"
+      },
+      "handoff": {
+        "aliases": [
+          "交接书",
+          "交接记录"
+        ],
+        "directory": "projectname/achieve/08-项目推进与下一步计划",
+        "filename_body": "科研交接",
+        "label": "交接书"
+      },
+      "decision": {
+        "aliases": [
+          "人工决定",
+          "决定记录"
+        ],
+        "directory": "projectname/achieve/08-项目推进与下一步计划",
+        "filename_body": "科研决定",
+        "label": "人工决定"
+      }
+    },
+    "legacy_paths": [],
+    "current_entries": {},
+    "exports": []
+  },
+  "artifact_policy": {
+    "governed_paths": [
+      "src",
+      "tests",
+      "scripts",
+      "configs",
+      "docs",
+      "benchmarks",
+      "../achieve"
+    ],
+    "ownership_rules": [
+      {
+        "pattern": "src/**",
+        "owner": "算法与应用实现"
+      },
+      {
+        "pattern": "tests/**",
+        "owner": "内部工程测试"
+      },
+      {
+        "pattern": "scripts/**",
+        "owner": "运行与维护工具"
+      },
+      {
+        "pattern": "configs/**",
+        "owner": "配置与功能登记"
+      },
+      {
+        "pattern": "docs/**",
+        "owner": "工程技术文档"
+      },
+      {
+        "pattern": "benchmarks/**",
+        "owner": "性能测量"
+      },
+      {
+        "pattern": "../achieve/00-项目管理/**",
+        "owner": "必要管理与科研进度记录"
+      },
+      {
+        "pattern": "../achieve/01-研究问题与选题/**",
+        "owner": "研究问题与选题"
+      },
+      {
+        "pattern": "../achieve/02-文献调研与领域结构/**",
+        "owner": "文献调研与领域结构"
+      },
+      {
+        "pattern": "../achieve/03-Idea科学假设与创新点/**",
+        "owner": "Idea科学假设与创新点"
+      },
+      {
+        "pattern": "../achieve/04-技术方案与方法设计/**",
+        "owner": "技术方案与方法设计"
+      },
+      {
+        "pattern": "../achieve/05-实验设计与执行/**",
+        "owner": "实验设计与执行"
+      },
+      {
+        "pattern": "../achieve/06-结果分析与问题诊断/**",
+        "owner": "结果分析与问题诊断"
+      },
+      {
+        "pattern": "../achieve/07-论文与成果表达/**",
+        "owner": "论文与成果表达"
+      },
+      {
+        "pattern": "../achieve/08-项目推进与下一步计划/**",
+        "owner": "项目推进与下一步计划"
+      }
+    ]
+  }
 }
