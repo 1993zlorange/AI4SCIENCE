@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import tempfile
+import unittest
 from pathlib import Path
 from typing import Any
 
@@ -646,3 +648,194 @@ def test_minimal_requires_explicit_daily_whitelist(project: Path) -> None:
     write_registry(project, data)
     with pytest.raises(ValueError):
         GOVERNANCE.validate_daily_records(project)
+
+
+class ReaderDocumentV2Tests(unittest.TestCase):
+    """四份读者文档保持入口完整且不把机器资料搬入正文。"""
+
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name) / "engineering"
+        (self.root / "configs").mkdir(parents=True)
+        self.docs = self.root / "docs"
+        self.docs.mkdir()
+        self.module = (
+            globals()["GOVERNANCE"] if "GOVERNANCE" in globals() else globals()["load_module"]()
+        )
+        self.names = ["README.md", "项目技术说明.md", "使用指南.md", "结果说明与适用范围.md"]
+        self.policy = {
+            "enabled": True,
+            "profile": "reader",
+            "root": "docs",
+            "root_entries": self.names,
+            "stable_directories": [],
+            "baseline_paths": [],
+            "pinned_paths": {},
+        }
+        self.save()
+        for name in self.names:
+            (self.docs / name).write_text(
+                "# 面向读者\n\n讲清问题、实际操作与结果边界。\n", encoding="utf-8"
+            )
+
+    def save(self) -> None:
+        (self.root / "configs/features.yaml").write_text(
+            json.dumps({"technical_documents": self.policy}, ensure_ascii=False), encoding="utf-8"
+        )
+
+    def errors(self) -> list[str]:
+        return self.module.validate_technical_documents(self.root)
+
+    def test_four_reader_documents_pass_and_missing_one_is_visible(self) -> None:
+        self.assertEqual(self.errors(), [])
+        (self.docs / "使用指南.md").unlink()
+        self.assertTrue(any("缺少读者文档" in x for x in self.errors()))
+
+    def test_machine_fields_and_test_output_do_not_become_reader_body(self) -> None:
+        for body in ["run_id: example", "```json\n{}\n```", "27 passed"]:
+            with self.subTest(body=body):
+                (self.docs / "项目技术说明.md").write_text(body, encoding="utf-8")
+                self.assertTrue(any("不得进入读者正文" in x for x in self.errors()))
+
+    def test_reader_does_not_accept_frontmatter_machine_identity(self) -> None:
+        (self.docs / "项目技术说明.md").write_text(
+            "---\nobject_id: technical-description\n---\n\n# 技术说明\n实际问题及方案。",
+            encoding="utf-8",
+        )
+        self.assertTrue(any("frontmatter" in x for x in self.errors()))
+
+    def test_not_started_requires_only_honest_navigation(self) -> None:
+        self.policy["delivery_state"] = "not_started"
+        self.save()
+        for name in self.names:
+            if name != "README.md":
+                (self.docs / name).unlink()
+        (self.docs / "README.md").write_text("# 导航\n正文尚未建立。", encoding="utf-8")
+        self.assertEqual(self.errors(), [])
+        (self.docs / "README.md").write_text("# 项目已经全部完成", encoding="utf-8")
+        self.assertTrue(any("明确尚未建立" in x for x in self.errors()))
+
+    def test_extra_api_document_is_not_another_current_entry(self) -> None:
+        (self.docs / "api.md").write_text("# 另一个当前接口正文", encoding="utf-8")
+        self.assertTrue(any("明确对象归属" in x for x in self.errors()))
+
+    def test_exact_legacy_source_pin_remains_readonly(self) -> None:
+        import hashlib
+
+        path = self.docs / "api.md"
+        path.write_text("# 旧接口来源\nrun_id: old", encoding="utf-8")
+        self.policy["pinned_paths"] = {"docs/api.md": hashlib.sha256(path.read_bytes()).hexdigest()}
+        self.save()
+        self.assertEqual(self.errors(), [])
+        path.write_text("改写旧来源", encoding="utf-8")
+        self.assertTrue(any("来源绑定改变" in x for x in self.errors()))
+
+
+class AchievementFolderOwnershipTests(unittest.TestCase):
+    """新增成果先有文件夹归属。旧精确文件原位兼容。"""
+
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.repo = Path(self.temporary.name)
+        self.engineering = self.repo / "projectname/project"
+        (self.engineering / "configs").mkdir(parents=True)
+        self.home = self.repo / "projectname/achieve/07-成果表达"
+        self.module = (
+            globals()["GOVERNANCE"] if "GOVERNANCE" in globals() else globals()["load_module"]()
+        )
+        self.spec = {
+            "path": "../achieve/07-成果表达",
+            "entry_filenames": ["README.md"],
+            "baseline_paths": [],
+            "folders": {
+                "专题成果": {
+                    "purpose": "同类成果",
+                    "object_entry_filenames": ["README.md"],
+                    "object_child_folders": {
+                        "可编辑源": "完整可编辑源",
+                        "figures": "对象图",
+                        "附件": "用户要求的附件",
+                    },
+                }
+            },
+        }
+        self.policy = {
+            "enabled": True,
+            "roots": [self.spec],
+            "rejected_types": ["修改说明", "逐句对照", "编译检查"],
+        }
+        self.save()
+
+    def save(self) -> None:
+        (self.engineering / "configs/features.yaml").write_text(
+            json.dumps({"achievement_layout": self.policy}, ensure_ascii=False), encoding="utf-8"
+        )
+
+    def put(self, relative: str) -> Path:
+        path = self.home / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("实际材料", encoding="utf-8")
+        return path
+
+    def errors(self) -> list[str]:
+        return self.module.validate_achievement_layout(self.engineering)
+
+    def test_missing_classifications_do_not_create_empty_directories(self) -> None:
+        self.assertEqual(self.errors(), [])
+        self.assertFalse(self.home.exists())
+        self.put("README.md")
+        self.assertEqual(self.errors(), [])
+        self.assertFalse((self.home / "专题成果").exists())
+
+    def test_new_loose_file_at_root_is_rejected(self) -> None:
+        self.put("新报告.pdf")
+        self.assertTrue(any("散放" in e for e in self.errors()))
+
+    def test_object_source_tree_and_requested_qa_keep_their_ownership(self) -> None:
+        for relative in [
+            "专题成果/稳定研究对象/report.pdf",
+            "专题成果/稳定研究对象/可编辑源/chapters/main.tex",
+            "专题成果/稳定研究对象/figures/result.png",
+            "专题成果/稳定研究对象/用户专项-问答稿.md",
+            "专题成果/稳定研究对象/附件/独立评审.md",
+        ]:
+            self.put(relative)
+        self.assertEqual(self.errors(), [])
+
+    def test_unknown_folder_and_deeper_child_are_rejected(self) -> None:
+        self.put("未登记类别/对象/稿件.docx")
+        self.put("专题成果/稳定对象/未登记深层/extra/file.pdf")
+        errors = self.errors()
+        self.assertTrue(any("分类归属" in e for e in errors))
+        self.assertTrue(any("未知深层" in e for e in errors))
+
+    def test_explicit_object_child_override_accepts_existing_package(self) -> None:
+        self.spec["folders"]["专题成果"]["objects"] = {
+            "当前稿": {"child_folders": {"chapters": "章节源", "fonts": "必要字体"}}
+        }
+        self.save()
+        self.put("专题成果/当前稿/chapters/chapter.tex")
+        self.put("专题成果/当前稿/fonts/font.ttf")
+        self.assertEqual(self.errors(), [])
+        self.put("专题成果/其他稿/chapters/chapter.tex")
+        self.assertTrue(any("未知深层" in e for e in self.errors()))
+
+    def test_process_artifacts_are_not_another_public_result(self) -> None:
+        self.put("专题成果/稳定对象/本轮-修改说明.md")
+        self.put("专题成果/稳定对象/可编辑源/report.log")
+        self.assertTrue(any("过程稿或编译证据" in e for e in self.errors()))
+
+    def test_precise_legacy_files_do_not_exempt_the_whole_folder(self) -> None:
+        self.put("旧目录/原稿.md")
+        self.spec["baseline_paths"] = ["旧目录/原稿.md"]
+        self.save()
+        self.assertEqual(self.errors(), [])
+        self.put("旧目录/新稿.md")
+        self.assertTrue(any("分类归属" in e for e in self.errors()))
+
+    def test_agent_or_date_is_not_a_stable_object(self) -> None:
+        self.put("专题成果/MB-X01/稿件.pdf")
+        self.put("专题成果/20261030-临时任务/稿件.pdf")
+        self.assertTrue(any("日期任务或Agent" in e for e in self.errors()))

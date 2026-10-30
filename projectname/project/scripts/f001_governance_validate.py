@@ -722,6 +722,22 @@ def validate_technical_documents(engineering_root: Path) -> list[str]:
     if not home.is_relative_to(root):
         return ["技术文档目录越界"]
     errors = []
+    reader = policy.get("profile") == "reader"
+    reader_entries = {"README.md", "项目技术说明.md", "使用指南.md", "结果说明与适用范围.md"}
+    if reader:
+        if set(policy.get("root_entries", [])) != reader_entries:
+            errors.append("读者文档入口必须是规定的四份文档")
+        state = policy.get("delivery_state", "ready")
+        if state not in {"ready", "not_started"}:
+            errors.append("读者文档交付状态无效")
+        required = reader_entries if state == "ready" else {"README.md"}
+        for filename in sorted(required):
+            if not (home / filename).is_file():
+                errors.append("缺少读者文档：" + filename)
+        if state == "not_started" and (home / "README.md").is_file():
+            navigation = (home / "README.md").read_text(encoding="utf-8-sig")
+            if not any(word in navigation for word in ("尚未建立", "尚无", "未建立")):
+                errors.append("未开始文档须在README明确尚未建立")
     pins = policy.get("pinned_paths", {})
     baseline = set(policy.get("baseline_paths", []))
     identities = set()
@@ -730,7 +746,7 @@ def validate_technical_documents(engineering_root: Path) -> list[str]:
         if (
             not source.is_relative_to(home)
             or not source.is_file()
-            or hashlib.sha256(source.read_bytes()).hexdigest() != expected
+            or hashlib.sha256(source.read_bytes().replace(b"\r\n", b"\n") if policy.get("pin_hash_mode") == "text-lf" else source.read_bytes()).hexdigest() != expected
         ):
             errors.append("技术原件来源绑定改变或缺失：" + relative)
     for path in home.rglob("*"):
@@ -762,6 +778,19 @@ def validate_technical_documents(engineering_root: Path) -> list[str]:
             errors.append("过程材料、补丁或源码快照不得进入当前docs：" + relative)
         if path.suffix == ".md":
             text = path.read_text(encoding="utf-8-sig")
+            if reader:
+                # 读者文档不使用机器元数据头。旧精确绑定原件已在前面排除。
+                if re.match(r"\A---\s*\n.*?\n---\s*\n", text, re.DOTALL):
+                    errors.append("读者正文不得包含frontmatter机器元数据：" + relative)
+                body = re.sub(r"\A---\s*\n.*?\n---\s*\n", "", text, count=1, flags=re.DOTALL)
+                machine_fields = re.search(
+                    r"(?mi)^\s*(?:[-*]\s*)?(?:sha256|source_sha256|schema_version|run_id|entry_id|object_id|implementation_paths)\s*[:=|]",
+                    body,
+                )
+                machine_block = re.search(r"(?mi)^```(?:json|yaml|toml|python|jsonl)\s*$", body)
+                process_output = re.search(r"\b[0-9]+\s+passed\b|\b[0-9a-fA-F]{64}\b", body)
+                if machine_fields or machine_block or process_output:
+                    errors.append("机器字段、代码清单或检查成绩不得进入读者正文：" + relative)
             if "daily-record/1.0" in text[:512]:
                 errors.append("日记录不得进入docs：" + relative)
             for line in text[:1500].splitlines():
@@ -773,6 +802,128 @@ def validate_technical_documents(engineering_root: Path) -> list[str]:
     return errors
 
 
+def validate_achievement_layout(engineering_root: Path) -> list[str]:
+    """可选的新增成果归属检查。旧精确基线不迁移，不要求所有分类目录存在。"""
+    registry = next(
+        (
+            engineering_root / name
+            for name in ("configs/features.yaml", "config/feature-registry.yaml")
+            if (engineering_root / name).is_file()
+        ),
+        None,
+    )
+    if registry is None:
+        return []
+    policy = json.loads(registry.read_text(encoding="utf-8-sig")).get("achievement_layout", {})
+    if not policy.get("enabled"):
+        return []
+    repo = engineering_root.parent.parent.resolve()
+    errors = []
+    covered = set()
+    process_suffixes = {
+        ".diff",
+        ".patch",
+        ".log",
+        ".aux",
+        ".bcf",
+        ".blg",
+        ".toc",
+        ".fls",
+        ".fdb_latexmk",
+    }
+    for spec in policy.get("roots", []):
+        home = (engineering_root / spec["path"]).resolve()
+        if Path(spec["path"]).is_absolute() or not home.is_relative_to(repo):
+            errors.append("成果归属根目录越界：" + str(spec["path"]))
+            continue
+        baseline = set(spec.get("baseline_paths", []))
+        legacy_dirs = set()
+        for relative in baseline:
+            value = Path(relative)
+            if (
+                value.is_absolute()
+                or not (home / value).resolve().is_relative_to(home)
+                or any(c in relative for c in "*?[")
+            ):
+                errors.append("成果旧基线必须是精确相对文件：" + relative)
+                continue
+            legacy_dirs.update(parent.as_posix() for parent in value.parents if parent != Path("."))
+        folders = spec.get("folders", {})
+        if not isinstance(folders, dict) or not all(
+            isinstance(v, dict) and v.get("purpose") for v in folders.values()
+        ):
+            errors.append("成果分类必须声明唯一用途")
+            continue
+        if not home.exists():
+            continue
+        if not home.is_dir():
+            errors.append("成果归属根不是文件夹：" + str(spec["path"]))
+            continue
+        for path in home.rglob("*"):
+            relative = path.relative_to(home).as_posix()
+            if path.is_symlink() or not path.resolve().is_relative_to(home):
+                errors.append("成果链接越界或未经登记：" + relative)
+                continue
+            if path.is_file() and relative in baseline:
+                continue
+            parts = path.relative_to(home).parts
+            if path.is_file():
+                identity = path.resolve()
+                if identity in covered:
+                    errors.append("成果文件匹配多个受管根：" + relative)
+                covered.add(identity)
+            if len(parts) == 1:
+                if path.is_file() and path.name not in spec.get("entry_filenames", ["README.md"]):
+                    errors.append("成果根目录不允许新文件散放：" + relative)
+                elif path.is_dir() and parts[0] not in folders and relative not in legacy_dirs:
+                    errors.append("未知成果文件夹：" + relative)
+                continue
+            category = folders.get(parts[0])
+            if category is None:
+                if not path.is_dir() or relative not in legacy_dirs:
+                    errors.append("文件没有成果分类归属：" + relative)
+                continue
+            if len(parts) == 2:
+                if path.is_file() and path.name not in category.get(
+                    "object_entry_filenames", ["README.md"]
+                ):
+                    errors.append("成果必须进入稳定对象文件夹：" + relative)
+                elif (
+                    path.is_dir()
+                    and re.match(
+                        r"(?i)^(?:(?:PI|MB|EX|CR)-[EPX][0-9]+|agent[0-9_-]*|task[-_].*|[0-9]{8}(?:[-_].*)?)$",
+                        parts[1],
+                    )
+                    and relative not in legacy_dirs
+                ):
+                    errors.append("成果对象不能按日期任务或Agent分散：" + relative)
+                continue
+            if re.match(
+                r"(?i)^(?:(?:PI|MB|EX|CR)-[EPX][0-9]+|agent[0-9_-]*|task[-_].*|[0-9]{8}(?:[-_].*)?)$",
+                parts[1],
+            ):
+                errors.append("成果对象不能按日期任务或Agent分散：" + relative)
+            if len(parts) >= 4 or (len(parts) == 3 and path.is_dir()):
+                object_spec = category.get("objects", {}).get(parts[1], {})
+                child_folders = object_spec.get(
+                    "child_folders",
+                    object_spec.get(
+                        "object_child_folders", category.get("object_child_folders", {})
+                    ),
+                )
+                if parts[2] not in child_folders:
+                    errors.append("未知深层成果文件夹归属：" + relative)
+            if path.is_file() and (
+                path.suffix.lower() in process_suffixes
+                or any(
+                    path.stem == kind or path.stem.endswith("-" + kind)
+                    for kind in policy.get("rejected_types", [])
+                )
+            ):
+                errors.append("过程稿或编译证据不应新增到成果区：" + relative)
+    return errors
+
+
 def run(project_root: Path) -> int:
     try:
         errors = (
@@ -781,6 +932,7 @@ def run(project_root: Path) -> int:
             + validate_daily_records(project_root)
             + validate_artifact_routes(project_root)
             + validate_technical_documents(project_root)
+            + validate_achievement_layout(project_root)
         )
     except (ValueError, KeyError, TypeError, OSError) as exc:
         print(f"ERROR: 治理配置或记录无法检查：{exc}")

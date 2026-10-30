@@ -67,3 +67,14 @@ class TechnicalDocumentTests(unittest.TestCase):
                 "---\nobject_id: receipt\n---\n", encoding="utf-8"
             )
         self.assertTrue(any("多个当前正文" in e for e in self.check()))
+
+    def test_declared_text_pin_is_portable_but_content_changes_fail(self):
+        p = self.root / "docs/legacy.md"
+        p.write_bytes(b"# Source\r\nOriginal text\r\n")
+        self.policy["pin_hash_mode"] = "text-lf"
+        self.policy["pinned_paths"] = {"docs/legacy.md": hashlib.sha256(p.read_bytes().replace(b"\r\n", b"\n")).hexdigest()}
+        self.assertEqual(self.check(), [])
+        p.write_bytes(b"# Source\nOriginal text\n")
+        self.assertEqual(self.check(), [])
+        p.write_bytes(b"# Source\nChanged text\n")
+        self.assertTrue(any("来源绑定" in e for e in self.check()))

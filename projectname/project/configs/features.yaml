@@ -26,7 +26,12 @@
         "../../README.md",
         "README.md",
         "docs/api.md",
-        "../achieve/00-项目管理/README.md"
+        "../achieve/00-项目管理/README.md",
+        "docs/README.md",
+        "docs/项目技术说明.md",
+        "docs/使用指南.md",
+        "docs/结果说明与适用范围.md",
+        "PROGRAMMING_STANDARDS.md"
       ],
       "test_paths": [
         "tests/unit/test_f001_governance_validate.py",
@@ -275,23 +280,395 @@
     "root": "docs",
     "root_entries": [
       "README.md",
-      "api.md",
-      "architecture.md"
+      "项目技术说明.md",
+      "使用指南.md",
+      "结果说明与适用范围.md"
     ],
-    "stable_directories": [
-      "interfaces",
-      "commands",
-      "algorithms",
-      "adr"
-    ],
-    "pinned_paths": {},
+    "stable_directories": [],
+    "pinned_paths": {
+      "docs/20260913-工程运行日志-模板.md": "8370b8b848697bab6b98aea4a6d40fe9c1a1fd892c96729cf81fb66d48a406c1",
+      "docs/20260915-AI4SCIENCE教学手册-教学手册.html": "f7c53fd5bae3e5f5d11f833ef518893b39843ae85152afade05f5c2d8eb7a39b",
+      "docs/api.md": "74ebbe42d27c60a30ce3b4d6d57d44c6329418c8a08b898e6a28a4bc538651fb",
+      "docs/architecture.md": "f441df6ffbe68435223fe7ba4687d0f022b12161adb983d759fb4eda07c7520a"
+    },
     "baseline_paths": [
-      "docs/20260913-工程运行日志-模板.md",
-      "docs/20260915-AI4SCIENCE教学手册-教学手册.html",
-      "docs/api.md",
-      "docs/architecture.md",
       "docs/adr/.gitkeep",
       "docs/algorithms/.gitkeep"
+    ],
+    "profile": "reader",
+    "delivery_state": "ready",
+    "pin_hash_mode": "text-lf"
+  },
+  "achievement_layout": {
+    "enabled": true,
+    "roots": [
+      {
+        "path": "../achieve/01-研究问题与选题",
+        "entry_filenames": [
+          "README.md"
+        ],
+        "folders": {
+          "研究问题": {
+            "purpose": "研究对象、待回答问题及边界",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          },
+          "场景与需求": {
+            "purpose": "真实使用场景及可核实需求",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          }
+        },
+        "baseline_paths": []
+      },
+      {
+        "path": "../achieve/02-文献调研与领域结构",
+        "entry_filenames": [
+          "README.md"
+        ],
+        "folders": {
+          "文献依据": {
+            "purpose": "原始文献及阅读依据",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          },
+          "方法比较": {
+            "purpose": "同条件下的方法谱系与差距",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          }
+        },
+        "baseline_paths": []
+      },
+      {
+        "path": "../achieve/03-Idea科学假设与创新点",
+        "entry_filenames": [
+          "README.md"
+        ],
+        "folders": {
+          "研究假设": {
+            "purpose": "可检验假设、预测及反例",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          },
+          "创新分析": {
+            "purpose": "最近邻差异与有边界贡献",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          }
+        },
+        "baseline_paths": []
+      },
+      {
+        "path": "../achieve/04-技术方案与方法设计",
+        "entry_filenames": [
+          "README.md"
+        ],
+        "folders": {
+          "研究方案": {
+            "purpose": "解决研究问题的整体方案",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          },
+          "数学模型": {
+            "purpose": "变量、映射、约束及公式依据",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          },
+          "方法约定": {
+            "purpose": "数据与算法实现所需共同约定",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          },
+          "勘误说明": {
+            "purpose": "影响方法含义的实际勘误，非普通写作修改流水",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          }
+        },
+        "baseline_paths": []
+      },
+      {
+        "path": "../achieve/05-实验设计与执行",
+        "entry_filenames": [
+          "README.md"
+        ],
+        "folders": {
+          "性能实验计划": {
+            "purpose": "唯一优先顺序与必要性能缺口",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          },
+          "实验协议": {
+            "purpose": "预先确定的条件、指标与完成/停止规则",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          }
+        },
+        "baseline_paths": []
+      },
+      {
+        "path": "../achieve/06-结果分析与问题诊断",
+        "entry_filenames": [
+          "README.md"
+        ],
+        "folders": {
+          "结果总览": {
+            "purpose": "已有性能结果及其原始来源入口",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          },
+          "定量分析": {
+            "purpose": "同口径比较、切片、不确定性与局限",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          },
+          "历史演示": {
+            "purpose": "历史演示对象只读保存，不当作新性能证据",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          },
+          "figures": {
+            "purpose": "跨成果共用图唯一母版，按稳定图对象维护",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          }
+        },
+        "baseline_paths": []
+      },
+      {
+        "path": "../achieve/07-论文与成果表达",
+        "entry_filenames": [
+          "README.md"
+        ],
+        "folders": {
+          "技术报告": {
+            "purpose": "技术报告专题成果，按稳定对象维护",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同一对象可编辑工程与支持资源",
+              "figures": "对象专用图片，共用母版另存唯一位置",
+              "附件": "用户要求的问答、评审及附属材料",
+              "历史版本": "已核定被替代的只读版本"
+            }
+          },
+          "期刊论文": {
+            "purpose": "期刊论文专题成果，按稳定对象维护",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同一对象可编辑工程与支持资源",
+              "figures": "对象专用图片，共用母版另存唯一位置",
+              "附件": "用户要求的问答、评审及附属材料",
+              "历史版本": "已核定被替代的只读版本"
+            }
+          },
+          "学术汇报": {
+            "purpose": "学术汇报专题成果，按稳定对象维护",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同一对象可编辑工程与支持资源",
+              "figures": "对象专用图片，共用母版另存唯一位置",
+              "附件": "用户要求的问答、评审及附属材料",
+              "历史版本": "已核定被替代的只读版本"
+            }
+          },
+          "写作参考": {
+            "purpose": "写作参考专题成果，按稳定对象维护",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同一对象可编辑工程与支持资源",
+              "figures": "对象专用图片，共用母版另存唯一位置",
+              "附件": "用户要求的问答、评审及附属材料",
+              "历史版本": "已核定被替代的只读版本"
+            }
+          }
+        },
+        "baseline_paths": [
+          "20260913-AI4SCIENCE模板v0.1.0-发布说明.md"
+        ]
+      },
+      {
+        "path": "../achieve/08-项目推进与下一步计划",
+        "entry_filenames": [
+          "README.md"
+        ],
+        "folders": {
+          "推进计划": {
+            "purpose": "基于已有结果的实际研究安排",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          },
+          "决定原件": {
+            "purpose": "真实具名或签署决定原件，默认新决定仍写需求，不生成例行决定稿",
+            "object_entry_filenames": [
+              "README.md"
+            ],
+            "object_child_folders": {
+              "可编辑源": "同对象可编辑源及必要支持资源",
+              "figures": "对象专用图，共用母版归06/figures",
+              "附件": "明确需要的资料、问答、独立评审或原件",
+              "历史版本": "已核定被替代版本的只读原件"
+            },
+            "objects": {}
+          }
+        },
+        "baseline_paths": []
+      }
+    ],
+    "rejected_types": [
+      "修改说明",
+      "逐句对照",
+      "编译检查",
+      "检查记录",
+      "修订记录",
+      "整合记录",
+      "工作契约",
+      "成果卡",
+      "交接书"
     ]
   }
 }
