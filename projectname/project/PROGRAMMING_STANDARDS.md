@@ -233,3 +233,12 @@ uv run pytest
 - [PyTorch CONTRIBUTING](https://github.com/pytorch/pytorch/blob/main/CONTRIBUTING.md)：贡献范围、分层测试、lint/type check、文档和 AI 辅助责任。
 - [scikit-learn Estimator 开发规范](https://scikit-learn.org/stable/developers/develop.html)：统一 `fit`/`predict` 接口、参数可检查性、公共导入路径和共享 estimator checks。
 - [Microsoft Azure REST API Guidelines](https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md)：HTTP 资源、状态、兼容和错误接口原则。
+
+
+## 工程文档按对象维护
+
+docs仅保存当前代码的使用与维护说明：README导航、architecture实际结构、api接口导航，以及interfaces、commands、algorithms、adr。相同模块、脚本组或文件格式维护唯一当前正文，使用稳定对象名，日期与适用版本放元数据，不因修复或每次运行新增日期API文档。简单脚本优先--help及必要注释，相关脚本共用运行指南；复杂独立工具确需说明时维护一份对象文档。文档必须讲输入输出、错误、限制及真实命令，不能以目录模板补造未实现能力。
+
+工作契约、工程交付/复验、检查成绩、修订流水、补丁和源码快照不进入docs，必要原始证据留既有run。旧的“每个新脚本新增日期API说明”要求由本节替代；这是维护现行说明，不取消必要用法文档。科研结果、图表解释和主张归achieve并引用唯一原始来源。架构决定按实际决定对象保留，不为普通修复或文件整理另写ADR。
+
+迁移前检查当前代码、配置、命令及历史来源绑定；被封存运行绑定的原件不得覆盖、改指纹或改写旧manifest。保留原路径只读例外须逐文件登记原SHA与用途并在导航标明非现行稿，其余旧件移出日常docs。归并先提取有效字段、边界及运行语义，过程部分原件保全。文档唯一性按对象/适用版本判断，不把不同模块同日的合法文档并成一个日文件。新目录有实际文档才建，工程检查不进入科研日志。

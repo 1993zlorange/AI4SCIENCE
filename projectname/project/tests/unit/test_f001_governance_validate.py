@@ -394,3 +394,255 @@ def test_export_with_unreadable_binary_mother_is_a_reported_error(project: Path)
         derived_from=source.relative_to(project.parent.parent).as_posix(),
     )
     assert any("母版无法读取" in e for e in GOVERNANCE.validate_daily_records(project))
+
+
+def group_entry(project: Path, identifier: str = "group-one", **overrides: Any) -> dict[str, Any]:
+    source = project.parent / "achieve" / "existing-research.md"
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text('<a id="guide"></a>\n研究问题与已有原始结果。', encoding="utf-8")
+    item = entry(
+        identifier, recorded_at="2026-10-30T10:00:00+08:00", occurred_at="2026-10-30T09:00:00+08:00"
+    )
+    item.update(
+        report_contract="group-meeting/1.0",
+        work_kind="literature",
+        research_point="研究要点",
+        research_source="research/achieve/existing-research.md#guide",
+        guide_questions=["4.4.Q10"],
+        research_question="需要回答哪个研究问题",
+        actions="阅读已有研究资料并整理比较",
+        result="已有结果与未决问题分开记录",
+        interpretation="仅作条件下的解释",
+        limitations="尚缺独立性能对照",
+        next_step="先分析已有性能结果",
+        evidence=["research/achieve/existing-research.md#guide"],
+    )
+    item.update(overrides)
+    return item
+
+
+def group_record(project: Path, items: list[dict[str, Any]], body: str = "") -> Path:
+    configure(project, "log_contract", "group-meeting/1.0")
+    configure(project, "log_contract_effective_date", "2026-10-30")
+    return record(
+        project,
+        "log",
+        items,
+        relative="research/achieve/00-项目管理/logs/20261030-科研进度-日志.md",
+        record_date="2026-10-30",
+        body=body,
+    )
+
+
+def test_new_research_log_accepts_group_meeting_fields_and_real_sources(project: Path) -> None:
+    group_record(project, [group_entry(project)])
+    assert GOVERNANCE.validate_daily_records(project) == []
+
+
+@pytest.mark.parametrize(
+    "section,limit", [(1, 14), (2, 16), (3, 17), (4, 14), (5, 14), (6, 15), (7, 14)]
+)
+def test_guide_question_limits_are_exact(project: Path, section: int, limit: int) -> None:
+    group_record(project, [group_entry(project, guide_questions=[f"4.{section}.Q{limit}"])])
+    assert GOVERNANCE.validate_daily_records(project) == []
+    group_record(project, [group_entry(project, guide_questions=[f"4.{section}.Q{limit + 1}"])])
+    assert any("问题编号不存在" in e for e in GOVERNANCE.validate_daily_records(project))
+
+
+@pytest.mark.parametrize("question", ["3.4.Q10", "4.0.Q1", "4.8.Q1", "4.4.Q0"])
+def test_guide_identifier_cannot_be_another_outline(project: Path, question: str) -> None:
+    group_record(project, [group_entry(project, guide_questions=[question])])
+    assert any("问题编号不存在" in e for e in GOVERNANCE.validate_daily_records(project))
+
+
+def test_new_entry_cannot_omit_contract_or_borrow_next_entry_fields(project: Path) -> None:
+    first = group_entry(project, "missing", report_contract=None, result=None)
+    second = group_entry(project, "complete")
+    group_record(project, [first, second])
+    errors = GOVERNANCE.validate_daily_records(project)
+    assert any("必须声明report_contract" in e for e in errors)
+    assert any("缺少实际result" in e for e in errors)
+
+
+def test_old_day_new_record_time_still_requires_contract(project: Path) -> None:
+    record(
+        project,
+        "log",
+        [
+            entry(
+                "backdated",
+                recorded_at="2026-10-30T10:00:00+08:00",
+                research_point="研究要点",
+                research_source="已有出处",
+            )
+        ],
+    )
+    assert any("必须声明report_contract" in e for e in GOVERNANCE.validate_daily_records(project))
+
+
+@pytest.mark.parametrize("kind", ["performance", "analysis"])
+def test_performance_and_analysis_need_conditions_and_metrics(project: Path, kind: str) -> None:
+    item = group_entry(project, work_kind=kind)
+    group_record(project, [item])
+    errors = GOVERNANCE.validate_daily_records(project)
+    assert any("comparison_conditions" in e for e in errors)
+    assert any("metrics" in e for e in errors)
+    item.update(comparison_conditions="同一输入与预算", metrics="配对差值为0")
+    group_record(project, [item])
+    assert GOVERNANCE.validate_daily_records(project) == []
+
+
+def test_group_log_rejects_engineering_appendix_and_unlocatable_evidence(project: Path) -> None:
+    group_record(
+        project,
+        [
+            group_entry(
+                project,
+                work_kind="engineering",
+                evidence=["missing.csv"],
+                research_source="research/achieve/existing-research.md#missing",
+            )
+        ],
+        body="\n### 附录\uff1a管理信息\n机械过程信息\n",
+    )
+    errors = GOVERNANCE.validate_daily_records(project)
+    assert any("work_kind" in e for e in errors)
+    assert any("research_source" in e for e in errors)
+    assert any("证据无法定位" in e for e in errors)
+    assert any("工程或管理附录" in e for e in errors)
+
+
+def test_legacy_entry_remains_compatible_without_new_contract(project: Path) -> None:
+    record(
+        project,
+        "log",
+        [entry("legacy-entry", research_point="旧研究要点", research_source="旧原文出处")],
+        body="\n### 附录\uff1a管理信息\n原有信息\n",
+    )
+    assert GOVERNANCE.validate_daily_records(project) == []
+
+
+def test_historical_view_is_precisely_registered_and_not_an_active_daily_file(
+    project: Path,
+) -> None:
+    path = project.parent / "achieve/00-项目管理/logs/20261029-科研进度-日志.md"
+    path.parent.mkdir(parents=True)
+    text = "---\nschema_version: research-history/1.0\nproject_id: research\nrecord_state: historical_readonly\nevent_date: 2026-10-29\ncompiled_at: 2026-10-30T12:00:00+08:00\n---\n\n按核实日期整理的科研进展。\n"
+    path.write_text(text, encoding="utf-8")
+    assert any("未登记精确路径" in e for e in GOVERNANCE.validate_daily_records(project))
+    configure(project, "historical_views", [path.relative_to(project.parent.parent).as_posix()])
+    assert GOVERNANCE.validate_daily_records(project) == []
+    path.write_text(text.replace("compiled_at:", "recorded_at:"), encoding="utf-8")
+    assert any("compiled_at" in e for e in GOVERNANCE.validate_daily_records(project))
+    assert any("不能伪造旧recorded_at" in e for e in GOVERNANCE.validate_daily_records(project))
+
+
+def enable_minimal_records(project: Path) -> None:
+    configure(project, "enabled_daily_types", ["requirement", "log"])
+    configure(project, "process_record_profile", "minimal")
+    configure(project, "minimal_records_effective_date", "2026-10-30")
+
+
+@pytest.mark.parametrize(
+    "kind,label,body", [("change", "变更记录", "项目变更"), ("achievement", "成果卡", "科研结果")]
+)
+def test_minimal_profile_blocks_new_process_daily_files(
+    project: Path, kind: str, label: str, body: str
+) -> None:
+    enable_minimal_records(project)
+    spec = json.loads((project / "configs/features.yaml").read_text(encoding="utf-8"))[
+        "record_policy"
+    ]["types"][kind]
+    record(
+        project,
+        kind,
+        [entry("new-process", recorded_at="2026-10-30T10:00:00+08:00")],
+        relative=f"{spec['directory']}/20261030-{body}-{label}.md",
+        record_date="2026-10-30",
+    )
+    assert any("最小记录模式不再生成" in e for e in GOVERNANCE.validate_daily_records(project))
+
+
+def test_minimal_profile_keeps_old_process_daily_compatible_but_blocks_new_append(
+    project: Path,
+) -> None:
+    enable_minimal_records(project)
+    record(project)
+    assert GOVERNANCE.validate_daily_records(project) == []
+    record(project, entries=[entry("old"), entry("new", recorded_at="2026-10-30T10:00:00+08:00")])
+    assert any("最小记录模式不再生成" in e for e in GOVERNANCE.validate_daily_records(project))
+
+
+def test_minimal_profile_allows_new_research_progress(project: Path) -> None:
+    enable_minimal_records(project)
+    group_record(project, [group_entry(project)])
+    assert GOVERNANCE.validate_daily_records(project) == []
+
+
+def add_requirement_type(project: Path) -> None:
+    data = json.loads((project / "configs/features.yaml").read_text(encoding="utf-8"))
+    data["record_policy"]["types"]["requirement"] = {
+        "aliases": ["需求记录"],
+        "directory": "research/achieve/00-项目管理/requirements",
+        "filename_body": "用户要求",
+        "label": "需求记录",
+    }
+    write_registry(project, data)
+
+
+def test_minimal_profile_allows_new_requirement_daily(project: Path) -> None:
+    add_requirement_type(project)
+    enable_minimal_records(project)
+    record(
+        project,
+        "requirement",
+        [entry("scope", recorded_at="2026-10-30T10:00:00+08:00")],
+        relative="research/achieve/00-项目管理/requirements/20261030-用户要求-需求记录.md",
+        record_date="2026-10-30",
+    )
+    assert GOVERNANCE.validate_daily_records(project) == []
+
+
+def test_requirement_history_requires_exact_registration_real_time_and_source(
+    project: Path,
+) -> None:
+    add_requirement_type(project)
+    path = project.parent / "achieve/00-项目管理/requirements/20261029-用户要求-需求记录.md"
+    path.parent.mkdir(parents=True)
+    source = path.parent / "original.md"
+    source.write_text("原始用户要求。", encoding="utf-8")
+    text = "---\nschema_version: research-requirement-history/1.0\nproject_id: research\nrecord_state: historical_readonly\nevent_date: 2026-10-29\ncompiled_at: 2026-10-30T12:00:00+08:00\n---\n\n[用户原话](original.md)\n"
+    path.write_text(text, encoding="utf-8")
+    assert any("未登记精确路径" in e for e in GOVERNANCE.validate_daily_records(project))
+    configure(
+        project,
+        "historical_requirement_views",
+        [path.relative_to(project.parent.parent).as_posix()],
+    )
+    assert GOVERNANCE.validate_daily_records(project) == []
+    path.write_text(text.replace("original.md)", "missing.md)"), encoding="utf-8")
+    assert any("引用不存在" in e for e in GOVERNANCE.validate_daily_records(project))
+    path.write_text(text.replace("compiled_at:", "recorded_at:"), encoding="utf-8")
+    assert any("compiled_at" in e for e in GOVERNANCE.validate_daily_records(project))
+    assert any("不能伪造旧recorded_at" in e for e in GOVERNANCE.validate_daily_records(project))
+
+
+def test_history_requirement_registry_cannot_exempt_directory(project: Path) -> None:
+    directory = project.parent / "achieve/requirements"
+    directory.mkdir(parents=True)
+    configure(
+        project,
+        "historical_requirement_views",
+        [directory.relative_to(project.parent.parent).as_posix()],
+    )
+    with pytest.raises(ValueError, match="现有精确文件"):
+        GOVERNANCE.validate_daily_records(project)
+
+
+def test_minimal_requires_explicit_daily_whitelist(project: Path) -> None:
+    configure(project, "process_record_profile", "minimal")
+    data = json.loads((project / "configs/features.yaml").read_text(encoding="utf-8"))
+    data["record_policy"].pop("enabled_daily_types", None)
+    write_registry(project, data)
+    with pytest.raises(ValueError):
+        GOVERNANCE.validate_daily_records(project)

@@ -29,7 +29,8 @@
         "../achieve/00-项目管理/README.md"
       ],
       "test_paths": [
-        "tests/unit/test_f001_governance_validate.py"
+        "tests/unit/test_f001_governance_validate.py",
+        "tests/unit/test_technical_document_routing.py"
       ],
       "status": "active",
       "validate_paths": true,
@@ -184,7 +185,17 @@
     },
     "legacy_paths": [],
     "current_entries": {},
-    "exports": []
+    "exports": [],
+    "log_contract": "group-meeting/1.0",
+    "log_contract_effective_date": "2026-10-30",
+    "historical_views": [],
+    "enabled_daily_types": [
+      "requirement",
+      "log"
+    ],
+    "process_record_profile": "minimal",
+    "minimal_records_effective_date": "2026-10-30",
+    "historical_requirement_views": []
   },
   "artifact_policy": {
     "governed_paths": [
@@ -215,7 +226,7 @@
       },
       {
         "pattern": "docs/**",
-        "owner": "工程技术文档"
+        "owner": "现行工程使用维护文档；仅精确绑定的历史原件只读例外"
       },
       {
         "pattern": "benchmarks/**",
@@ -257,6 +268,30 @@
         "pattern": "../achieve/08-项目推进与下一步计划/**",
         "owner": "项目推进与下一步计划"
       }
+    ]
+  },
+  "technical_documents": {
+    "enabled": true,
+    "root": "docs",
+    "root_entries": [
+      "README.md",
+      "api.md",
+      "architecture.md"
+    ],
+    "stable_directories": [
+      "interfaces",
+      "commands",
+      "algorithms",
+      "adr"
+    ],
+    "pinned_paths": {},
+    "baseline_paths": [
+      "docs/20260913-工程运行日志-模板.md",
+      "docs/20260915-AI4SCIENCE教学手册-教学手册.html",
+      "docs/api.md",
+      "docs/architecture.md",
+      "docs/adr/.gitkeep",
+      "docs/algorithms/.gitkeep"
     ]
   }
 }
